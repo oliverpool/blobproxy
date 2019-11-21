@@ -21,6 +21,19 @@ func (Server) handleError(w http.ResponseWriter, r *http.Request, err error) {
 
 }
 
+func (s Server) dispatch(w http.ResponseWriter, r *http.Request, method, key string) {
+	if method == "GET" {
+		s.read(w, r, key)
+	} else if method == "HEAD" {
+		s.exists(w, r, key)
+	} else if method == "POST" {
+		s.write(w, r, key)
+	} else if method == "PUT" {
+		s.write(w, r, key)
+	} else {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
 func (s Server) exists(w http.ResponseWriter, r *http.Request, key string) {
 	ok, err := s.bucket.Exists(r.Context(), key)
 	if err != nil {
