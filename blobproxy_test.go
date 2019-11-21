@@ -50,3 +50,26 @@ func TestSigner(t *testing.T) {
 
 	is.Equal(401, res.Code)
 }
+
+func TestNilSigner(t *testing.T) {
+	is := is.New(t)
+
+	bucketFolder := "./testdata/temp"
+	os.RemoveAll(bucketFolder)
+	os.MkdirAll(bucketFolder, os.ModePerm)
+
+	bucket, err := fileblob.OpenBucket(bucketFolder, nil)
+	is.NoErr(err)
+
+	// Correct: 201 created
+	res, req := resReq("POST", "/some-url?method=POST&obj=345", nil)
+	Server{bucket}.URLSignerHMACHandler(nil).ServeHTTP(res, req)
+
+	is.Equal(201, res.Code)
+
+	// Wrong method: 405
+	res, req = resReq("PUT", "/some-url?method=POST&obj=345", nil)
+	Server{bucket}.URLSignerHMACHandler(nil).ServeHTTP(res, req)
+
+	is.Equal(405, res.Code)
+}

@@ -35,7 +35,7 @@ func (s Server) dispatch(w http.ResponseWriter, r *http.Request, method, key str
 	}
 }
 func (s Server) exists(w http.ResponseWriter, r *http.Request, key string) {
-	ok, err := s.bucket.Exists(r.Context(), key)
+	ok, err := s.Bucket.Exists(r.Context(), key)
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -47,7 +47,7 @@ func (s Server) exists(w http.ResponseWriter, r *http.Request, key string) {
 }
 
 func (s Server) read(w http.ResponseWriter, r *http.Request, key string) {
-	reader, err := s.bucket.NewReader(r.Context(), key, nil)
+	reader, err := s.Bucket.NewReader(r.Context(), key, nil)
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -61,7 +61,7 @@ func (s Server) read(w http.ResponseWriter, r *http.Request, key string) {
 }
 
 func (s Server) write(w http.ResponseWriter, r *http.Request, key string) {
-	writer, err := s.bucket.NewWriter(r.Context(), key, nil)
+	writer, err := s.Bucket.NewWriter(r.Context(), key, nil)
 	if err != nil {
 		s.handleError(w, r, err)
 		return
