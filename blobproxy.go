@@ -2,6 +2,7 @@ package blobproxy
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -31,7 +32,7 @@ func (s Server) URLSignerHMACHandler(signer fileblob.URLSigner) http.HandlerFunc
 		}
 		method := r.FormValue("method")
 		if method != r.Method {
-			http.Error(w, "http method should be the same as the one in the query", http.StatusMethodNotAllowed)
+			http.Error(w, fmt.Sprintf("http method (%s) should be the same as in the query (%s)", r.Method, method), http.StatusMethodNotAllowed)
 			return
 		}
 		s.dispatch(w, r, method, key)
