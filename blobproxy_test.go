@@ -34,19 +34,25 @@ func TestSigner(t *testing.T) {
 
 	// Correct: 201 created
 	res, req := resReq("PUT", signedURL, nil)
-	Server{bucket}.URLSignerHMACHandler(signer).ServeHTTP(res, req)
+	Server{bucket}.URLSignerHMACHandler(signer, false).ServeHTTP(res, req)
 
 	is.Equal(201, res.Code)
 
 	// Wrong method: 405
-	res, req = resReq("POST", signedURL, nil)
-	Server{bucket}.URLSignerHMACHandler(signer).ServeHTTP(res, req)
+	res, req = resReq("GET", signedURL, nil)
+	Server{bucket}.URLSignerHMACHandler(signer, false).ServeHTTP(res, req)
 
 	is.Equal(405, res.Code)
 
+	// Wrong method, but public GET: 200
+	res, req = resReq("GET", signedURL, nil)
+	Server{bucket}.URLSignerHMACHandler(signer, true).ServeHTTP(res, req)
+
+	is.Equal(200, res.Code)
+
 	// Wrong signature: 401
 	res, req = resReq("PUT", "/some-url", nil)
-	Server{bucket}.URLSignerHMACHandler(signer).ServeHTTP(res, req)
+	Server{bucket}.URLSignerHMACHandler(signer, false).ServeHTTP(res, req)
 
 	is.Equal(401, res.Code)
 }
@@ -63,13 +69,13 @@ func TestNilSigner(t *testing.T) {
 
 	// Correct: 201 created
 	res, req := resReq("POST", "/some-url?method=POST&obj=345", nil)
-	Server{bucket}.URLSignerHMACHandler(nil).ServeHTTP(res, req)
+	Server{bucket}.URLSignerHMACHandler(nil, false).ServeHTTP(res, req)
 
 	is.Equal(201, res.Code)
 
 	// Wrong method: 405
 	res, req = resReq("PUT", "/some-url?method=POST&obj=345", nil)
-	Server{bucket}.URLSignerHMACHandler(nil).ServeHTTP(res, req)
+	Server{bucket}.URLSignerHMACHandler(nil, false).ServeHTTP(res, req)
 
 	is.Equal(405, res.Code)
 }
